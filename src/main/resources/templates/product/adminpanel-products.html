@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - Products</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            margin: 50px auto;
+            width: 900px;
+        }
+        .btn-create, .btn-edit, .btn-delete, .btn-logout {
+            background-color: black;
+            color: white;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .table {
+            width: auto;
+            min-width: 800px;
+        }
+        .pagination-container {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+        .pagination li {
+            list-style: none;
+            margin: 0 5px;
+        }
+        .pagination li a {
+            text-decoration: none;
+            color: white;
+        }
+        .pagination li.active a {
+            font-weight: bold;
+        }
+        .nav-link {
+            color: white;
+        }
+        .nav-link:hover {
+            color: #fff;
+            background-color: #343a40;
+        }
+        .navbar {
+            background-color: #343a40;
+        }
+        .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/adminpanel">Admin Panel</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+            <form id="logoutForm" th:action="@{/logout}" method="post">
+    			<a href="javascript:{}" onclick="document.getElementById('logoutForm').submit();" class="nav-link">Logout</a>
+			</form>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">Product Management</h2>
+            <form class="form-inline mb-3" th:action="@{/adminpanel/products/page/1}" method="get">
+                <input type="hidden" name="sortField" th:value="${sortField}">
+                <input type="hidden" name="sortDir" th:value="${sortDir}">
+                <input type="text" class="form-control mr-2" id="search" name="searchTerm" placeholder="Search" th:value="${searchTerm}">
+                <button type="submit" class="btn btn-search">Search</button>
+            </form>
+            <div class="table-container">
+                <table class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>
+                                <a th:href="@{'/adminpanel/products/page/' + ${currentPage} + '?sortField=uuid&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">ID</a>
+                            </th>
+                            <th>
+                                <a th:href="@{'/adminpanel/products/page/' + ${currentPage} + '?sortField=name&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">Product Name</a>
+                            </th>
+                            <th>
+                                <a th:href="@{'/adminpanel/products/page/' + ${currentPage} + '?sortField=price&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">Price</a>
+                            </th>
+                           
+                            <th>
+                                <a th:href="@{'/adminpanel/products/page/' + ${currentPage} + '?sortField=category_id&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">Category</a>
+                            </th>
+                            <th>Active</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Loop over product data and display in table rows -->
+                        <tr th:each="product : ${listProduct}">
+                            <td th:text="${product.uuid}"></td>
+                            <td th:text="${product.name}"></td>
+                            <td th:text="${product.price}"></td>
+                            <td th:text="${product.category.name}"></td>
+                         <td>
+                                    <div class="mb-3">
+                                        <a th:href="@{'/adminpanel/products/active/' + ${product.uuid}}" class="btn btn-success" th:if="${product.enabled}">Enabled</a>
+                                        <a th:href="@{'/adminpanel/products/active/' + ${product.uuid}}" class="btn btn-danger" th:if="${!product.enabled}">Disabled</a>
+                                    </div>
+                                </td>
+                            <td>
+                                <div class="mb-3">
+                                    <a th:href="@{'/adminpanel/products/edit/' + ${product.uuid}}" class="btn btn-edit">Edit</a>
+                                    <a th:href="@{'/adminpanel/products/delete/' + ${product.uuid}}" class="btn btn-delete">Delete</a>
+                                    <a th:href="@{'/adminpanel/inventory/create/'+ ${product.uuid}}" class="btn btn-create">Add Inventory</a>
+                                    
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="button-container">
+                <a href="/adminpanel/products/create" class="btn btn-create">Add Product</a>
+            </div>
+            <div th:if="${totalPages >= 1}" class="pagination-container">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{'/adminpanel/products/page/' + ${currentPage - 1} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + '&searchTerm=' + ${searchTerm}}" tabindex="-1">Prev</a>
+                    </li>
+                    <li class="page-item" th:each="i: ${#numbers.sequence(1, totalPages)}" th:classappend="${currentPage == i} ? 'active'">
+                        <a class="page-link" th:href="@{'/adminpanel/products/page/' + ${i} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + '&searchTerm=' + ${searchTerm}}"><span th:text="${i}"></span></a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                        <a class="page-link" th:href="@{'/adminpanel/products/page/' + ${currentPage + 1} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + '&searchTerm=' + ${searchTerm}}">Next</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<footer class="footer">
+    <div class="container">
+        <p>Admin Panel - Products &copy; 2023</p>
+    </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+</body>
+</html>

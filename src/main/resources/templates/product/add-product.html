@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Product</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        .card {
+            margin: 0 auto;
+            margin-top: 100px;
+            max-width: 400px;
+        }
+        .btn-submit {
+            background-color: black;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">Add Product</h2>
+                <form th:action="@{/adminpanel/products/create}" method="post" enctype="multipart/form-data" id="create-productForm">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Price</label>
+                        <input type="number" class="form-control" id="price" name="price" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea class="form-control" id="description" name="description" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select multiple class="form-control" id="category" name="category" required>
+                            <!-- Loop over categories and display as options -->
+                            <option th:each="category : ${categories}" th:value="${category.uuid}" th:text="${category.name}"></option>
+                        </select>
+                    </div>
+                      <div class="form-group">
+                        <label for="images">Image</label>
+                        <input type="file" class="form-control-file" id="mainImage" name="mainImage" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="images"> Thumbnail Images</label>
+                        <input type="file" class="form-control-file" id="thumbnails" name="thumbnails" multiple>
+                    </div>
+                    <div class="form-group d-flex justify-content-between">
+                        <button type="submit" class="btn btn-submit">Create</button>
+                        <a href="/adminpanel/products" class="btn btn-submit">Back</a>
+                    </div>
+                </form>
+
+                <div th:if="${nameError}" class="text-danger">
+                    <span th:text="${nameError}"></span>
+                </div>
+              
+                <div th:if="${categoryError}" class="text-danger">
+                    <span th:text="${categoryError}"></span>
+                </div>
+                <div th:if="${imageError}" class="text-danger">
+                    <span th:text="${imageError}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script>
+    document.getElementById('images').addEventListener('change', function(event) {
+        var previewContainer = document.getElementById('imagePreview');
+        var files = event.target.files;
+
+        // Check if the number of selected files exceeds the limit
+        if (files.length > 6) {
+            event.target.value = ''; // Clear the selected files
+            alert("You can only upload a maximum of 6 images.");
+            return;
+        }
+
+        previewContainer.innerHTML = ''; // Clear previous previews
+
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            var reader = new FileReader();
+
+            // Check if the file type is an image
+            if (!file.type.startsWith('image/')) {
+                event.target.value = ''; // Clear the selected files
+                alert("Only image files are allowed.");
+                return;
+            }
+
+            reader.onload = function(e) {
+                var imageContainer = document.createElement('div');
+                imageContainer.className = 'image-preview-item';
+
+                var imageElement = document.createElement('img');
+                imageElement.src = e.target.result;
+                imageContainer.appendChild(imageElement);
+
+                var deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.className = 'btn btn-sm btn-danger delete-button';
+                deleteButton.addEventListener('click', function() {
+                    previewContainer.removeChild(imageContainer);
+                });
+                imageContainer.appendChild(deleteButton);
+
+                previewContainer.appendChild(imageContainer);
+
+                // Initialize Cropper.js for the image
+                var cropper = new Cropper(imageElement, {
+                    aspectRatio: 1, // Set the aspect ratio for cropping
+                    viewMode: 1, // Set the view mode for cropping
+                    crop: function(event) {
+                        // Get the cropped image data
+                        var croppedDataUrl = cropper.getCroppedCanvas().toDataURL();
+
+                        // Update the image source with the cropped image data
+                        imageElement.src = croppedDataUrl;
+                    }
+                });
+            };
+
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    /* CSS for the product details view */
+    body {
+      background-color: #F5F5F5;
+    }
+
+    .container {
+      background-color: #FFFFFF;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-top: 50px;
+      max-width: 800px;
+    }
+
+    .main-image {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      border: 1px solid #EAEAEA;
+      padding: 10px;
+      background-color: #FFFFFF;
+    }
+
+    .thumbnail-images {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .thumbnail-image {
+      width: 60px;
+      height: 60px;
+      margin: 0 10px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 1px solid #EAEAEA;
+    }
+
+    .selected-thumbnail {
+      border: 2px solid #0056FF;
+    }
+
+    .product-details {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .product-name {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .product-price {
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #B12704;
+    }
+
+    .product-status {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #008000;
+      font-weight: bold;
+    }
+
+    .product-description {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <img class="main-image" id="mainImage" src="path_to_main_image.jpg" alt="Product Image">
+        <div class="thumbnail-images">
+          <img class="thumbnail-image selected-thumbnail" src="path_to_image1.jpg" alt="Thumbnail 1" onclick="selectImage(1)">
+          <img class="thumbnail-image" src="path_to_image2.jpg" alt="Thumbnail 2" onclick="selectImage(2)">
+          <img class="thumbnail-image" src="path_to_image3.jpg" alt="Thumbnail 3" onclick="selectImage(3)">
+          <img class="thumbnail-image" src="path_to_image4.jpg" alt="Thumbnail 4" onclick="selectImage(4)">
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="product-details">
+          <div class="product-name">Product Name</div>
+          <div class="product-price">$99.99</div>
+          <div class="product-status">In Stock</div>
+          <div class="product-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed lobortis elit non posuere porta.</div>
+          <div class="form-group mt-4">
+            <label for="quantity">Quantity:</label>
+            <input type="number" class="form-control" id="quantity" value="1">
+          </div>
+          <button class="btn btn-primary" onclick="addToCart()">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // JavaScript functions for image selection and adding to cart
+    function selectImage(imageIndex) {
+      // Get all thumbnail images
+      var thumbnailImages = document.getElementsByClassName("thumbnail-image");
+
+      // Remove 'selected-thumbnail' class from all images
+      for (var i = 0; i < thumbnailImages.length; i++) {
+        thumbnailImages[i].classList.remove("selected-thumbnail");
+      }
+
+      // Add 'selected-thumbnail' class to the clicked image
+      thumbnailImages[imageIndex - 1].classList.add("selected-thumbnail");
+
+      // Change the main image source to the selected thumbnail image
+      document.getElementById("mainImage").src = "path_to_image" + imageIndex + ".jpg";
+    }
+
+    function addToCart() {
+      var quantity = document.getElementById("quantity").value;
+      // Add code to add the product to the cart
+      console.log("Added " + quantity + " items to cart.");
+    }
+  </script>
+</body>
+</html>

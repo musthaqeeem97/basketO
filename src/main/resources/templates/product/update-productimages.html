@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Images</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        .card {
+            margin: 0 auto;
+            margin-top: 100px;
+            max-width: 400px;
+        }
+        .btn-submit {
+            background-color: black;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">Add Images</h2>
+                <form th:action="@{/adminpanel/products/update-image}" method="post" enctype="multipart/form-data" id="add-imageForm">
+                    <input type="hidden" name="uuid" th:value="${product.uuid}">
+                    <div class="form-group">
+                        <label for="productName">Product Name</label>
+                        <input type="text" class="form-control" id="productName" name="productName" th:value="${product.name}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <input type="text" class="form-control" id="category" name="category" th:value="${product.category.name}" readonly>
+                    </div>
+                     <div class="form-group">
+                        <label for="images">Image</label>
+                        <input type="file" class="form-control-file" id="mainImage" name="mainImage" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="images"> Thumb nail Images</label>
+                        <input type="file" class="form-control-file" id="subImages" name="subImages" multiple>
+                    </div>
+                    <div class="form-group d-flex justify-content-between">
+                        <button type="submit" class="btn btn-submit">Add Images</button>
+                        <a href="/adminpanel/products" class="btn btn-submit">Back</a>
+                    </div>
+                </form>
+
+                <div th:if="${imageError}" class="text-danger">
+                    <span th:text="${imageError}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>

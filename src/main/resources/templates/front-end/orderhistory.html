@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+    <title>Order History</title>
+    <!-- Add Bootstrap CSS link here -->
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+ <link rel="stylesheet" href="css/navbar.css">
+    <style type="text/css">
+     
+   body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+     .order-card {
+            border: 1px solid #ccc;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+            background-color: #f8f9fa;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+        .order-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+        .order-card-body {
+            padding: 10px 20px;
+        }
+        .order-card-footer {
+            background-color: #f8f9fa;
+            border-top: none;
+            text-align: end;
+            padding: 10px 20px;
+        }
+        .order-item-card {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .order-item-card img {
+            max-width: 60px;
+            object-fit: contain;
+            margin-right: 10px;
+        }
+        .order-item-name {
+            font-size: 16px;
+            color: #333;
+            margin: 0;
+        }
+        .order-id {
+            font-size: 14px;
+            color: #666;
+        }
+        .order-date {
+            font-size: 14px;
+            color: #666;
+            text-align: end;
+        }
+        .order-details-label {
+            font-size: 16px;
+            font-weight: bold;
+            color: #444;
+        }
+       
+
+        /* Style for Regenerate Invoice and View Invoice links */
+        .btn-regenerate-invoice,
+        .btn-view-invoice {
+            text-decoration: none; /* Remove underline */
+            color: #198754; /* Greenish-blue color */
+            margin-right: 10px;
+        }
+
+        .btn-view-invoice {
+            cursor: pointer; /* Show pointer cursor on hover */
+        }
+   
+   .shaded-header {
+            background-color: #232f3e;
+            padding: 20px;
+            color: #fff;
+        }
+     
+.shaded-footer {
+    /* Existing footer styles */
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+</style>
+
+
+    
+</head>
+
+<body>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">BasketO</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/your-account">User Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/orders">Order & Returns</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/cart">Cart</a>
+                </li>
+                <li class="nav-item">
+<a class="nav-link" href="#" onclick="showDeliveryAddress()">Delivery Address</a>
+</li>
+</ul>
+<form class="form-inline my-2 my-lg-0" th:action="@{/page/1}" method="get">
+                <!-- Category Dropdown -->
+                <div class="form-group" >
+    <select id="categoryDropdown" class="form-control mr-sm-2" name="category">
+        <option value="" selected="selected">All Categories</option>
+        <!-- Other options here -->
+    </select>
+</div>
+                <input type="hidden" name="sortField" th:value="${sortField}">
+                <input type="hidden" name="sortDir" th:value="${sortDir}">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" id="search" name="searchTerm" th:value="${searchTerm}">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+<!-- User Account Dropdown -->
+<ul class="navbar-nav ml-auto">
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+User Account
+</a>
+<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+<a class="dropdown-item" href="/your-account">Your Account</a>
+<a class="dropdown-item" href="/orders">Your orders</a>
+
+<form id="logoutForm" th:action="@{/logout}" method="post">
+<a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('logoutForm').submit(); return false;">Logout</a>
+</form>
+</div>
+</li>
+</ul>
+</div>
+</nav>
+
+</header>
+<!-- Delivery Address Alert -->
+<div class="modal fade" id="deliveryAddressModal" tabindex="-1" role="dialog" aria-labelledby="deliveryAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deliveryAddressModalLabel">Delivery Address</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Show current addresses and add new address form -->
+                <h6><small>Select a delivery location</small></h6>
+<!-- Loop over addresses and display them -->
+<div class="container">
+<div class="card-deck">
+<div th:each="address : ${addresses}" class="card">
+<div class="card-body">
+<small class="card-title" th:text="${address.fullName}"></small>
+<small class="card-text" th:text="${address.phone}"></small>
+<small class="card-text" th:text="${address.addressLine1}"></small>
+<small class="card-text" th:text="${address.addressLine2}"></small>
+<small class="card-text" th:text="${address.city}"></small>
+<small class="card-text" th:text="${address.state}"></small>
+<small class="card-text" th:text="${address.pincode}"></small>
+<br>
+<br>
+<div th:if="${address.defaultAddress}">
+  <h6>Default Address</h6>
+</div>
+<div th:unless="${address.defaultAddress}">
+   <a th:href="@{/address/makedefault/{addressId}(addressId=${address.uuid})}">
+    <small>Make Default</small>
+  </a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<hr>
+<h6>Add New Address:</h6>
+<form th:action="@{/address}" method="get" id="address">
+<button type="submit" class="btn btn-primary">Add Address</button>
+</form>
+</div>
+</div>
+</div>
+
+</div>
+
+    <header class="shaded-header">
+        <h1>Order History</h1>
+     
+    </header>
+	<br>
+ <div class="container">
+       
+        <div th:each="order : ${listOrderHistory}" class="order-card">
+            <div class="order-card-header">
+                <div class="order-id">Order ID: <span th:text="${order.uuid}"></span></div>
+                <div class="order-date" th:text="${order.createdAt}"></div>
+            </div>
+            <div class="order-card-body">
+                <p class="order-total">Total: ₹<span th:text="${order.total}"></span></p>
+                <p class="order-type">Order Type: <span th:text="${order.orderType}"></span></p>
+
+                <!-- List of order items -->
+                <h5 class="mt-4">Order Items:</h5>
+                <div class="order-items">
+                    <div th:each="item : ${order.orderItems}" class="order-item">
+                        <div class="order-item-card">
+                            <img th:src="@{'/images/products/' + ${item.product.mainImage.fileName}}" class="order-item-img" alt="Product Image" />
+                            <p class="order-item-name" th:text="${item.product.name}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="order-card-footer">
+                <a class="btn btn-regenerate-invoice" th:href="@{/generateInvoice?uuid={orderId}(orderId=${order.uuid})}">
+                    Regenerate Invoice
+                </a>
+                <button class="btn btn-view-invoice" th:data-uuid="${order.uuid}" onclick="viewInvoice(this.getAttribute('data-uuid'))">
+                    View Invoice
+                </button>
+            </div>
+        </div>
+    </div>
+
+  <br>
+  <br>
+  <br>
+  <br>
+  <footer class="shaded-footer">
+    <p>&copy; 2023 Basketo. All rights reserved.</p>
+</footer>
+
+<!-- Add Bootstrap JS script link here -->
+<script th:src="@{/webjars/bootstrap/5.5.0/js/bootstrap.min.js}"></script>
+<script type="text/javascript">
+
+//view invoice
+function viewInvoice(orderId) {
+  fetch('/viewInvoice', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: orderId
+  })
+    .then(response => {
+      if (response.ok) {
+        return response.blob();
+      } else {
+        throw new Error('Error sending order ID');
+      }
+    })
+    .then(blob => {
+      // Create a temporary URL for the blob
+      const url = URL.createObjectURL(blob);
+
+      // Create a link element and set its attributes
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${orderId}.pdf`;
+
+      // Simulate a click event on the link to start the download
+      link.click();
+
+      // Clean up the temporary URL
+      URL.revokeObjectURL(url);
+    })
+    .catch(error => {
+      console.error('An error occurred while sending the order ID:', error);
+    });
+}
+
+
+</script>
+<script>
+    function showDeliveryAddress() {
+        $('#deliveryAddressModal').modal('show');
+    }
+</script>
+</body>
+
+</html>

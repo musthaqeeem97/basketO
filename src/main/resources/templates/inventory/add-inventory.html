@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Inventory</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        .card {
+            margin: 0 auto;
+            margin-top: 100px;
+            max-width: 400px;
+        }
+        .btn-submit {
+            background-color: black;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+   <div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">Add Inventory</h2>
+            <form th:action="@{/adminpanel/inventory/create}" method="post" id="add-inventory-form">
+                <div class="form-group">
+                    <label for="product">Product:</label>
+                    <input id="productId" name="productId" th:value="${product.uuid}" readonly>
+                </div>
+            <!--    <div class="form-group">
+                    <label for="warehouse">Warehouse:</label>
+                    <select class="form-control" id="warehouse" name="warehouse" required>
+                      
+                        <option th:each="warehouse : ${listWarehouses}" th:value="${warehouse.code}" th:text="${warehouse.location}"></option>
+                    </select>
+                </div>
+                 -->
+                <div class="form-group">
+                    <label for="availableQuantity">Quantity:</label>
+                    <input type="number" class="form-control" id="availableQuantity" name="availableQuantity" min="1" required>
+                </div>
+                <button type="submit" class="btn btn-submit">Add</button>
+            </form>
+            <div th:if="${productError}" class="text-danger">
+                    <span th:text="${productError}"></span>
+                </div>
+        </div>
+    </div>
+</div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>

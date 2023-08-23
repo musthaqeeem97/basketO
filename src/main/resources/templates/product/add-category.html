@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Add Category</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <style>
+        .form-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-container .card-header {
+            background-color: #f8f9fa;
+            border-bottom: none;
+            padding: 15px;
+        }
+
+        .form-container .card-body {
+            padding: 20px;
+        }
+
+        .form-container .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-container .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .form-container .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-black {
+            background-color: black;
+            color: white;
+        }
+
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .image-preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-preview-item .delete-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card mt-5 form-container">
+                <div class="card-header">
+                    <h2>Add Category</h2>
+                </div>
+                <div class="card-body">
+                    <form id="addCategoryForm" th:action="@{/adminpanel/category/create}" th:object="${category}" method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="name">Category Name:</label>
+                            <input type="text" class="form-control" name="name" id="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description:</label>
+                            <textarea class="form-control" name="description" id="description" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="images">Images:</label>
+                            <input type="file" class="form-control-file" name="images" id="images" multiple>
+                        </div>
+                        <div class="image-preview" id="imagePreview">
+                            <!-- Image previews will be added dynamically here -->
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button type="submit" class="btn btn-black">Add Category</button>
+                            <a href="/adminpanel/category" class="btn btn-black">Back</a>
+                        </div>
+                    </form>
+                    <div th:if="${nameError}" class="text-danger">
+                        <span th:text="${nameError}"></span>
+                    </div>
+                    <div th:if="${fileError}" class="text-danger">
+                        <span th:text="${fileError}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script>
+    document.getElementById('images').addEventListener('change', function(event) {
+        var previewContainer = document.getElementById('imagePreview');
+        var files = event.target.files;
+
+        // Check if the number of selected files exceeds the limit
+        if (files.length > 5) {
+            event.target.value = ''; // Clear the selected files
+            alert("You can only upload a maximum of 5 images.");
+            return;
+        }
+
+        previewContainer.innerHTML = ''; // Clear previous previews
+
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            var reader = new FileReader();
+
+            // Check if the file type is an image
+            if (!file.type.startsWith('image/')) {
+                event.target.value = ''; // Clear the selected files
+                alert("Only image files are allowed.");
+                return;
+            }
+
+            reader.onload = function(e) {
+                var imageContainer = document.createElement('div');
+                imageContainer.className = 'image-preview-item';
+
+                var imageElement = document.createElement('img');
+                imageElement.src = e.target.result;
+                imageContainer.appendChild(imageElement);
+
+                var deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.className = 'btn btn-sm btn-danger delete-button';
+                deleteButton.addEventListener('click', function() {
+                    previewContainer.removeChild(imageContainer);
+                });
+                imageContainer.appendChild(deleteButton);
+
+                previewContainer.appendChild(imageContainer);
+
+                // Initialize Cropper.js for the image
+                var cropper = new Cropper(imageElement, {
+                    aspectRatio: 1, // Set the aspect ratio for cropping
+                    viewMode: 1, // Set the view mode for cropping
+                    crop: function(event) {
+                        // Get the cropped image data
+                        var croppedDataUrl = cropper.getCroppedCanvas().toDataURL();
+
+                        // Update the image source with the cropped image data
+                        imageElement.src = croppedDataUrl;
+                        
+                        console.log('Cropped image data:', croppedDataUrl);
+                        imageElement.src = croppedDataUrl;
+                    }
+                });
+            };
+
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+</body>
+</html>

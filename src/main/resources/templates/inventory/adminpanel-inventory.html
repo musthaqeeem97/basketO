@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>AdminPanel - Inventory</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        .card {
+            margin: 0 auto;
+            margin-top: 50px;
+            width: 900px;
+        }
+        .btn-search, .btn-refresh {
+            background-color: black;
+            color: white;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .table {
+            width: auto;
+            min-width: 800px;
+        }
+        .nav-link:hover {
+            color: #fff;
+            background-color: #007bff;
+        }
+        .footer {
+            background-color: #343a40;
+            padding: 20px 0;
+            text-align: center;
+            color: #fff;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" th:href="@{/adminpanel}">Admin Panel</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <form id="logoutForm" th:action="@{/logout}" method="post">
+                        <a href="javascript:{}" onclick="document.getElementById('logoutForm').submit();" class="nav-link">Logout</a>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">Inventory Management</h2>
+                <form class="form-inline mb-3" th:action="@{/adminpanel/inventory/page/{currentPage}(currentPage=${currentPage})}" method="get">
+                    <input type="hidden" name="sortField" th:value="${sortField}">
+                    <input type="hidden" name="sortDir" th:value="${sortDir}">
+                    <input type="text" class="form-control mr-2" id="search" name="searchTerm" placeholder="Search">
+                    <button type="submit" class="btn btn-search">Search</button>
+                </form>
+                <div class="table-container">
+                    <table class="table table-striped">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th><a th:href="@{'/adminpanel/inventory/page/' + ${currentPage} + '?sortField=product_id&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">Product Id</a></th>
+                                <th><a th:href="@{'/adminpanel/inventory/page/' + ${currentPage} + '?sortField=available_quantity&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">Available Quantity</a></th>
+                            	<th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="inventory : ${listInventory}">
+                                <td th:text="${inventory.product.name}"></td>
+                                <td th:text="${inventory.availableQuantity}"></td>
+                                <td>
+                                    <div class="mb-3">
+                                        <a th:href="@{'/adminpanel/inventory/update/' + ${inventory.uuid}}" class="btn btn-edit">Edit</a>
+                                        <a th:href="@{'/adminpanel/inventory/delete/' + ${inventory.uuid}}" class="btn btn-delete">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div th:if="${totalPages >= 1}">
+                   <!-- ... previous code ... -->
+
+<div class="button-container">
+    <div>
+        Total items: [[${totalItems}]]
+    </div>
+    <div>
+        <span th:if="${currentPage > 1}">
+            <a th:href="@{/adminpanel/inventory/page/{currentPage}(currentPage=${currentPage - 1},sortField=${sortField},sortDir=${sortDir},searchTerm=${searchTerm})}" class="btn btn-link">Prev</a>
+        </span>
+        <span th:unless="${currentPage > 1}">Prev</span>&nbsp; &nbsp;
+        <span th:each="i: ${#numbers.sequence(1, totalPages)}">
+            <a th:if="${currentPage != i}" th:href="@{/adminpanel/inventory/page/{currentPage}(currentPage=${i},sortField=${sortField},sortDir=${sortDir},searchTerm=${searchTerm})}" class="btn btn-link">[[${i}]]</a>
+            <span th:unless="${currentPage != i}">[[${i}]]</span> &nbsp; &nbsp;
+        </span>
+        <span th:if="${currentPage < totalPages}">
+            <a th:href="@{/adminpanel/inventory/page/{currentPage}(currentPage=${currentPage + 1},sortField=${sortField},sortDir=${sortDir},searchTerm=${searchTerm})}" class="btn btn-link">Next</a>
+        </span>
+        <span th:unless="${currentPage < totalPages}">Next</span>
+    </div>
+</div>
+
+<!-- ... rest of the code ... -->
+
+                    <div th:if="${deleteMessage}" class="text-danger">
+                        <span th:text="${deleteMessage}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <br>
+    <br>
+<footer class="footer">
+    <div class="container">
+        <p>Admin Panel - Inventory &copy; 2023</p>
+    </div>
+</footer>
+   
+    <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>

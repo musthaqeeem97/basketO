@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+
+order confirmation page
+
+<button class="checkout-button" onclick="orderRequest()" id="placeOrder">Place your order</button>
+    <p>This is an online payment.</p>
+    
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<!-- Load Razorpay library before your custom script -->
+
+<script>
+  function orderRequest() {
+    // Make a GET request to your Spring Boot controller method using jQuery AJAX
+    var total = 1000.0; // Change this value to the desired double value
+    $.ajax({
+      type: 'GET',
+      url: '/payment/checkout',
+      data: { total: total }, // Pass data as an object with a key-value pair
+      success: function (response) {
+        console.log("success");
+
+        const orderId = response;
+        // Update relevant elements in the Thymeleaf template
+
+        $.ajax({
+          type: 'GET',
+          url: '/payment/confirm',
+          data: { orderId: orderId }, // Pass orderId as a key-value pair
+          success: function (response) {
+            var options = {
+              key: "rzp_test_RpMsL1IMN8rqtM",
+              currency: 'INR',
+              amount: 1000,
+              order_id: response.id,
+              name: 'BASKETO',
+              description: 'Test Payment',
+              handler: function (response) {
+                proceedToBuy();
+                // Handle payment success
+              },
+              prefill: {
+                name: 'Musthaqeem',
+                email: 'munna@example.com',
+                contact: '+1234567890'
+              }
+            };
+
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+          },
+          error: function (xhr, status, error) {
+            console.log("error");
+            alert('Error: ' + error);
+          }
+        });
+      },
+      error: function (xhr, status, error) {
+        console.log("error");
+        alert('Error: ' + error);
+      }
+    });
+  }
+
+  function proceedToBuy() {
+    console.log("Selected Address ID in proceedToBuy:", selectedAddressId);
+
+    $.ajax({
+      type: "GET",
+      url: "/buy/placeorder",
+
+      success: function () {
+        console.log("Buy request successful");
+        // Redirect to the confirmation page
+        window.location.href = "/cart/confirmation";
+      },
+      error: function (xhr, status, error) {
+        console.log("Error occurred:", error);
+        // Handle error case if needed
+      },
+      contentType: "text/plain"
+    });
+  }
+</script>
+</body>
+</html>

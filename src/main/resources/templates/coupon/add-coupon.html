@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Coupon</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <style>
+      .form-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-container .card-header {
+            background-color: #f8f9fa;
+            border-bottom: none;
+            padding: 15px;
+        }
+
+        .form-container .card-body {
+            padding: 20px;
+        }
+
+        .form-container .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-container .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .form-container .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-black {
+            background-color: black;
+            color: white;
+        }
+
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .image-preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-preview-item .delete-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+    
+    
+    
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card mt-5 form-container">
+                <div class="card-header">
+                    <h2>Add Coupon</h2>
+                </div>
+                <div class="card-body">
+                    <form id="addCouponForm" th:action="@{/adminpanel/coupon/create}" method="post" th:object="${coupon}" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="coupon"><i class="fas fa-ticket-alt"></i> Coupon Code:</label>
+                            <input type="text" id="coupon" name="code" class="form-control" required>
+                            <span class="text-danger" th:if="${#fields.hasErrors('code')}" th:errors="*{code}"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="associatedItem"><i class="fas fa-link"></i> Associated Item:</label>
+                            <select id="associatedItem" name="type" class="form-select">
+                                <option value="GENERAL" id="generalOption"><i class="fas fa-cog"></i> General</option>
+                                <option value="PRODUCT"><i class="fas fa-box"></i> Product</option>
+                                <option value="CATEGORY"><i class="fas fa-tags"></i> Category</option>
+                            </select>
+                        </div>
+
+                        <div id="productSection" style="display: none;">
+                            <label for="product"><i class="fas fa-box-open"></i> Product:</label>
+                           
+                            <select id="product" name="product" class="form-select">
+                                <option th:each="product : ${productList}" th:text="${product.name}" th:value="${product.uuid}"></option>
+                            </select>
+                        </div>
+
+                        <div id="categorySection" style="display: none;">
+                            <label for="category"><i class="fas fa-folder-open"></i> Category:</label>
+                             <select id="category" name="category" class="form-select">
+                                <option th:each="category : ${categoryList}" th:text="${category.name}" th:value="${category.uuid}"></option>
+                            </select>
+                            
+                        </div>
+
+                        <div class="form-group">
+                            <label for="discount"><i class="fas fa-percent"></i> Discount:</label>
+                            <input type="number" id="discount" name="discount" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="expirationPeriod"><i class="fas fa-calendar"></i> Expiration Period:</label>
+                            <input type="date" id="expirationPeriod" name="expirationPeriod" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="couponStock"><i class="fas fa-boxes"></i> Coupon Stock:</label>
+                            <input type="number" id="couponStock" name="couponStock" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="maximumDiscountAmount"><i class="fas fa-money-bill"></i> Maximum Discount Amount:</label>
+                            <input type="number" id="maximumDiscountAmount" name="maximumDiscountAmount" class="form-control" required>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button type="submit" class="btn btn-black">Add</button>
+                            <a href="/adminpanel/coupon" class="btn btn-black">Back</a>
+                        </div>
+                    </form>
+                    <div th:if="${nameError}" class="text-danger">
+                        <span th:text="${nameError}"></span>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const associatedItemSelect = document.getElementById('associatedItem');
+        const productSection = document.getElementById('productSection');
+        const categorySection = document.getElementById('categorySection');
+
+        associatedItemSelect.addEventListener('change', function() {
+            if (associatedItemSelect.value === 'PRODUCT') {
+                productSection.style.display = 'block';
+                categorySection.style.display = 'none';
+            } else if (associatedItemSelect.value === 'CATEGORY') {
+                productSection.style.display = 'none';
+                categorySection.style.display = 'block';
+            } else {
+                productSection.style.display = 'none';
+                categorySection.style.display = 'none';
+            }
+        });
+    });
+
+    // Initial state
+    const associatedItemSelect = document.getElementById('associatedItem');
+    const productSection = document.getElementById('productSection');
+    const categorySection = document.getElementById('categorySection');
+
+    if (associatedItemSelect.value === 'PRODUCT') {
+        productSection.style.display = 'block';
+        categorySection.style.display = 'none';
+    } else if (associatedItemSelect.value === 'CATEGORY') {
+        productSection.style.display = 'none';
+        categorySection.style.display = 'block';
+    } else {
+        productSection.style.display = 'none';
+        categorySection.style.display = 'none';
+    }
+</script>
+
+
+</body>
+</html>
+
+
+
+
+

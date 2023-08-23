@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:tiles="http://www.thymeleaf.org/extras/tiles">
+<head>
+    <title>Add Address - BasketO</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+   body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+}
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-bar input[type="text"] {
+            width: 300px;
+            margin-right: 10px;
+        }
+
+        .user-info {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .username {
+            margin-right: 10px;
+        }
+
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-gap: 20px;
+        }
+
+        .product {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .category-list {
+            display: flex;
+            overflow-x: auto;
+            white-space: nowrap;
+            width: 100%;
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: #ccc transparent;
+        }
+
+        .category-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .category-list::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+
+        .category-list::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 3px;
+        }
+
+        .category {
+            display: inline-block;
+            margin-right: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+            min-width: 250px;
+        }
+
+        .fit-image {
+            object-fit: contain;
+            height: 200px; /* Adjust the height to your desired value */
+            width: 100%;
+        }
+
+        .text-truncate {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 767px) {
+            .container {
+                padding-right: 15px;
+                padding-left: 15px;
+            }
+        }
+
+        /* Branded styles */
+        body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        color: #333;
+    }
+
+    .navbar {
+    background-color: black; /* Change the background color to black */
+    border-bottom: 1px solid #ddd;
+    padding: 10px 20px;
+}
+
+/* Adjust the margin between form elements */
+.form-group {
+    margin-right: 10px; /* Add space between the category dropdown and the search input */
+}
+
+/* Align the search input and button horizontally */
+.form-inline {
+    display: flex;
+    align-items: center;
+}
+.form-control.mr-sm-2 {
+    margin-right: 10px; /* Add desired space here */
+}
+
+.btn-outline-success.my-2.my-sm-0 {
+    margin-left: 10px; /* Add desired space here */
+}
+
+/* Move the user account dropdown to the right end of the navbar */
+.navbar-nav.ml-auto {
+    margin-left: auto;
+}
+.modal-dialog {
+            max-width: 500px;
+        }
+
+        .modal-content {
+            padding: 20px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-img-top {
+            border-radius: 10px 10px 0 0;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .card-text {
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+        .shaded-header {
+            background-color: #232f3e;
+            padding: 20px;
+            color: #fff;
+        }
+        /* Style the footer */
+.shaded-footer {
+    background-color: #232f3e;
+    padding: 10px;
+    color: #fff;
+    text-align: center;
+    margin-top: auto; /* Push the footer to the bottom */
+}
+        
+        /* Custom styles */
+        .container {
+            margin-top: 50px;
+        }
+         .btn-submit {
+            background-color: black;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">BasketO</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/your-account">User Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/orders">Order & Returns</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/cart">Cart</a>
+                </li>
+                <li class="nav-item">
+<a class="nav-link" href="#" onclick="showDeliveryAddress()">Delivery Address</a>
+</li>
+</ul>
+<form class="form-inline my-2 my-lg-0" th:action="@{/page/1}" method="get">
+                <!-- Category Dropdown -->
+                <div class="form-group" style="display: none;">
+    <select id="categoryDropdown" class="form-control mr-sm-2" >
+        <option value="" selected="selected">All Categories</option>
+        <!-- Other options here -->
+    </select>
+</div><input type="hidden" name="category" value="">
+                <input type="hidden" name="sortField" th:value="name">
+                <input type="hidden" name="sortDir" th:value="${sortDir}">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" id="search" name="searchTerm" th:value="${searchTerm}">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+<!-- User Account Dropdown -->
+<ul class="navbar-nav ml-auto">
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+User Account
+</a>
+<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+<a class="dropdown-item" href="/your-account">Your Account</a>
+<a class="dropdown-item" href="/orderHistory">Your orders</a>
+<a class="dropdown-item" href="/wishlist">Your wishlist</a>
+
+<form id="logoutForm" th:action="@{/logout}" method="post">
+<a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('logoutForm').submit(); return false;">Logout</a>
+</form>
+</div>
+</li>
+</ul>
+</div>
+</nav>
+
+</header>
+
+
+
+<!-- Delivery Address Alert -->
+<div class="modal fade" id="deliveryAddressModal" tabindex="-1" role="dialog" aria-labelledby="deliveryAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deliveryAddressModalLabel">Delivery Address</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Show current addresses and add new address form -->
+                <h6><small>Select adelivery location</small></h6>
+<!-- Loop over addresses and display them -->
+<div class="container">
+<div class="card-deck">
+<div th:each="address : ${addresses}" class="card">
+<div class="card-body">
+<small class="card-title" th:text="${address.fullName}"></small>
+<small class="card-text" th:text="${address.phone}"></small>
+<small class="card-text" th:text="${address.addressLine1}"></small>
+<small class="card-text" th:text="${address.addressLine2}"></small>
+<small class="card-text" th:text="${address.city}"></small>
+<small class="card-text" th:text="${address.state}"></small>
+<small class="card-text" th:text="${address.pincode}"></small>
+<br>
+<div th:if="${address.defaultAddress}">
+  <h6>Default Address</h6>
+</div>
+<div th:unless="${address.defaultAddress}">
+   <a th:href="@{/address/makedefault/{addressId}(addressId=${address.uuid})}">
+    <small>Make Default</small>
+  </a>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<form th:action="@{/address}" method="get" id="address">
+<button type="submit" class="btn btn-primary">Add Address</button>
+</form>
+</div>
+</div>
+</div>
+
+</div>
+
+
+<header class="shaded-header">
+        <h1>Add Address</h1>
+     
+    </header>
+
+
+<!-- Main Content Section -->
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+          
+            <form th:action="@{/address/create}" method="post">
+                <div class="form-group">
+                    <label for="full-name">Full Name (First and Last Name)</label>
+                    <input type="text" class="form-control" id="fullName" placeholder="Enter Full Name" name="fullName" required>
+                </div>
+                <div class="form-group">
+				    <label for="mobile-number">Mobile Number</label>
+				    <input type="text" class="form-control" id="phone" placeholder="Enter Mobile Number" name="phone" required pattern="[0-9]{10}">
+				</div>
+                <div class="form-group">
+                    <label for="pincode">Pincode</label>
+                    <input type="text" class="form-control" id="pincode" placeholder="Enter Pincode" name="pincode" required>
+                </div>
+                <div class="form-group">
+                    <label for="address-line-1">Flat, House No., Building, Company, Apartment</label>
+                    <input type="text" class="form-control" id="addressLine1" placeholder="Enter Address Line 1" name="addressLine1" required>
+                </div>
+                <div class="form-group">
+                    <label for="address-line-2">Area, Street, Sector, Village</label>
+                    <input type="text" class="form-control" id="addressLine2" placeholder="Enter Address Line 2" name="addressLine2">
+                </div>
+                <div class="form-group">
+                    <label for="landmark">Landmark</label>
+                    <input type="text" class="form-control" id="landmark" placeholder="Enter Landmark" name="landmark">
+                </div>
+                <div class="form-group">
+                    <label for="city">Town/City</label>
+                    <input type="text" class="form-control" id="city" placeholder="Enter City" name="city" required>
+                </div>
+                <div class="form-group">
+                    <label for="state">State</label>
+                    <input type="text" class="form-control" id="state" placeholder="Enter State" name="state" required>
+                </div>
+             
+                <button type="submit" class="btn btn-submit">Add Address</button>
+            </form>
+        </div>
+    </div>
+</div>
+<br>
+<br>
+<footer class="shaded-footer">
+    <p>&copy; 2023 Basketo. All rights reserved.</p>
+</footer>
+
+<!-- JavaScript dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script>
+    // Get the selected category from the query parameter
+    var urlParams = new URLSearchParams(window.location.search);
+    var selectedCategory = urlParams.get('category');
+
+    // Set the selected category in the dropdown
+    document.getElementById('categoryDropdown').value = selectedCategory;
+</script>
+<script>
+    function showDeliveryAddress() {
+        $('#deliveryAddressModal').modal('show');
+    }
+</script>
+<script>
+    function changePage(pageNumber) {
+        var category = document.getElementById('categoryDropdown').value;
+        var sortField = "name";
+        var sortDir = encodeURIComponent("${sortDir}");
+        var searchTerm = encodeURIComponent(document.getElementById('search').value);
+
+        var url = '/page/' + pageNumber + '?category=' + category + '&sortField=' + sortField + '&sortDir=' + sortDir + '&searchTerm=' + searchTerm;
+        window.location.href = url;
+    }
+</script>
+
+
+
+</body>
+</html>

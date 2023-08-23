@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Product</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        .card {
+            margin: 0 auto;
+            margin-top: 100px;
+            max-width: 400px;
+        }
+        .btn-submit {
+            background-color: black;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">Update Product</h2>
+                <form th:action="@{/adminpanel/products/update}" method="post" enctype="multipart/form-data" id="update-productForm">
+                    <input type="hidden" name="uuid" th:value="${product.uuid}">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" th:value="${product.name}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="price">Price</label>
+                        <input type="number" class="form-control" id="price" name="price" th:value="${product.price}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea class="form-control" id="description" name="description" required th:text="${product.description}"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select multiple class="form-control" id="category" name="category" required>
+                            <!-- Loop over categories and display as options -->
+                            <option th:each="category : ${categories}" th:value="${category.uuid}" th:text="${category.name}" th:selected="${category.uuid == product.category.uuid}"></option>
+                        </select>
+                    </div>
+                      <div class="form-group">
+                        <label for="images">Image</label>
+                        <input type="file" class="form-control-file" id="mainImage" name="mainImage" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="images"> Thumbnail Images</label>
+                        <input type="file" class="form-control-file" id="thumbnails" name="thumbnails" multiple>
+                    </div>
+                    <div class="form-group d-flex justify-content-between">
+                        <button type="submit" class="btn btn-submit">Update</button>
+                        <a href="/adminpanel/products" class="btn btn-submit">Back</a>
+                    </div>
+                </form>
+
+                <div th:if="${nameError}" class="text-danger">
+                    <span th:text="${nameError}"></span>
+                </div>
+              
+                <div th:if="${categoryError}" class="text-danger">
+                    <span th:text="${categoryError}"></span>
+                </div>
+                <div th:if="${imageError}" class="text-danger">
+                    <span th:text="${imageError}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>

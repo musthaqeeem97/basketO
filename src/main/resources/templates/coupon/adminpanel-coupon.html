@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - Coupons</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            margin: 50px auto;
+            width: 900px;
+        }
+        .btn-create, .btn-edit, .btn-delete, .btn-logout {
+            background-color: black;
+            color: white;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .table {
+            width: auto;
+            min-width: 800px;
+        }
+        .pagination-container {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+        .pagination li {
+            list-style: none;
+            margin: 0 5px;
+        }
+        .pagination li a {
+            text-decoration: none;
+            color: white;
+        }
+        .pagination li.active a {
+            font-weight: bold;
+        }
+        .nav-link {
+            color: white;
+        }
+        .nav-link:hover {
+            color: #fff;
+            background-color: #343a40;
+        }
+        .navbar {
+            background-color: #343a40;
+        }
+        .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/adminpanel">Admin Panel</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+            <form id="logoutForm" th:action="@{/logout}" method="post">
+    			<a href="javascript:{}" onclick="document.getElementById('logoutForm').submit();" class="nav-link">Logout</a>
+			</form>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">Coupon Management</h2>
+            <form class="form-inline mb-3" th:action="@{/adminpanel/coupon/page/1}" method="get">
+                <input type="hidden" name="sortField" th:value="${sortField}">
+                <input type="hidden" name="sortDir" th:value="${sortDir}">
+                <input type="text" class="form-control mr-2" id="search" name="searchTerm" placeholder="Search" th:value="${searchTerm}">
+                <button type="submit" class="btn btn-search">Search</button>
+            </form>
+            <div class="table-container">
+                <table class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>
+                                Sl No
+                            </th>
+                            <th>
+                                <a th:href="@{'/adminpanel/coupon/page/' + ${currentPage} + '?sortField=code&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">Coupon Code</a>
+                            </th>
+                            <th>
+                                <a th:href="@{'/adminpanel/coupon/page/' + ${currentPage} + '?sortField=type&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">Type</a>
+                            </th>
+                           
+                            <th>
+                                <a th:href="@{'/adminpanel/coupon/page/' + ${currentPage} + '?sortField=discount&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">Discount</a>
+                            </th>
+                             <th><a th:href="@{'/adminpanel/coupon/page/' + ${currentPage} + '?sortField=expiration_period&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">
+                             Expiration Period (days)</a></th>
+                             <th><a th:href="@{'/adminpanel/coupon/page/' + ${currentPage} + '?sortField=coupon_stock&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">
+                             Coupon Stock</a></th>
+                             <th><a th:href="@{'/adminpanel/coupon/page/' + ${currentPage} + '?sortField=maximum_discount_amount&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">
+                             Maximum Discount</a></th>
+                            <th>Active</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    
+                    
+                <tbody>
+             
+
+                <tr th:each="coupon, rowIndex: ${listCoupon}">
+                    <td th:text="${rowIndex.count}"></td>
+                    <td th:text="${coupon.code}"></td>
+                    <td>
+                        <span th:if="${coupon.type.name == 'GENERAL'}"><i class="fas fa-cog"></i> General</span>
+                        <span th:if="${coupon.type.name == 'PRODUCT'}"><i class="fas fa-box"></i> <span th:text="${coupon.product.name}"></span></span>
+                        <span th:if="${coupon.type.name == 'CATEGORY'}"><i class="fas fa-tags"></i> <span th:text="${coupon.category.name}"></span></span>
+                        <span th:if="${coupon.type.name == 'USER'}"><i class="fas fa-user"></i> User</span>
+                    </td>
+                    <td th:text="${coupon.discount}"></td>
+                    <td th:text="${coupon.expirationPeriod}"></td>
+                    <td th:text="${coupon.couponStock}"></td>
+                    <td th:text="${coupon.maximumDiscountAmount}"></td>
+                    <td>
+                                    <div class="mb-3">
+                                        <a th:href="@{'/adminpanel/coupon/active/' + ${coupon.uuid}}" class="btn btn-success" th:if="${!coupon.isDeleted}">Enabled</a>
+                                        <a th:href="@{'/adminpanel/coupon/active/' + ${coupon.uuid}}" class="btn btn-danger" th:if="${coupon.isDeleted}">Disabled</a>
+                                    </div>
+                                </td>
+                    <td>
+                        <a th:href="@{/adminpanel/coupon/edit/{id}(id=${coupon.uuid})}" class="btn btn-primary btn-sm">Edit</a>
+                        <a th:href="@{/adminpanel/coupon/delete/{id}(id=${coupon.uuid})}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this coupon?')">Delete</a>
+                    </td>
+                </tr>
+                </tbody>
+                    
+                </table>
+            </div>
+            <div class="button-container">
+                <a href="/adminpanel/coupon/create" class="btn btn-create">Add Coupon</a>
+            </div>
+            <div th:if="${totalPages >= 1}" class="pagination-container">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{'/adminpanel/coupon/page/' + ${currentPage - 1} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + '&searchTerm=' + ${searchTerm}}" tabindex="-1">Prev</a>
+                    </li>
+                    <li class="page-item" th:each="i: ${#numbers.sequence(1, totalPages)}" th:classappend="${currentPage == i} ? 'active'">
+                        <a class="page-link" th:href="@{'/adminpanel/coupon/page/' + ${i} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + '&searchTerm=' + ${searchTerm}}"><span th:text="${i}"></span></a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                        <a class="page-link" th:href="@{'/adminpanel/coupon/page/' + ${currentPage + 1} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + '&searchTerm=' + ${searchTerm}}">Next</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<footer class="footer">
+    <div class="container">
+        <p>Admin Panel - Coupons &copy; 2023</p>
+    </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+</body>
+</html>

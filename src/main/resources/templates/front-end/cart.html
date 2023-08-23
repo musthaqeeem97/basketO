@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>Cart</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+     <link rel="stylesheet" href="css/navbar.css">
+    <style>
+    
+    
+        body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    flex: 1;
+}
+        
+        .btn-outline-success {
+            color: #333;
+            background-color: #fff;
+            border-color: #333;
+            transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+        }
+
+        .btn-outline-success:hover {
+            color: #fff;
+            background-color: #333;
+            border-color: #333;
+        }
+
+        .dropdown-menu {
+            min-width: 200px;
+        }
+    
+   
+        .sc-list-item-content {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .sc-product-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .sc-product-link {
+            color: black;
+            text-decoration: none;
+        }
+
+        .sc-product-link:hover {
+            color: #333;
+        }
+
+        .sc-product-title {
+            line-height: 1.3em !important;
+            max-height: 2.6em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .sc-item-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #B12704;
+            margin-bottom: 8px;
+        }
+
+        .sc-action-links {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-top: 8px;
+        }
+
+        .sc-action-button {
+            margin-right: 8px;
+            background-color: white;
+            color: black;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+            text-decoration: none;
+        }
+
+        .sc-action-button:hover {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .quantity-input {
+            width: 60px;
+            height: 30px;
+            padding: 0 8px;
+            font-size: 14px;
+            background-color: white;
+            color: black;
+        }
+
+        .proceed-to-buy-button {
+            width: 100%;
+            padding: 8px 16px;
+            background-color: white;
+            color: black;
+            font-weight: bold;
+            
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+
+        
+    </style>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">BasketO</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/your-account">User Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/orders">Order & Returns</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/cart">Cart</a>
+                </li>
+                <li class="nav-item">
+<a class="nav-link" href="#" onclick="showDeliveryAddress()">Delivery Address</a>
+</li>
+</ul>
+<form class="form-inline my-2 my-lg-0" th:action="@{/page/1}" method="get">
+                <!-- Category Dropdown -->
+                <div class="form-group" style="display: none;">
+    <select id="categoryDropdown" class="form-control mr-sm-2" >
+        <option value="" selected="selected">All Categories</option>
+        <!-- Other options here -->
+    </select>
+</div><input type="hidden" name="category" value="">
+                <input type="hidden" name="sortField" th:value="name">
+                <input type="hidden" name="sortDir" th:value="${sortDir}">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" id="search" name="searchTerm" th:value="${searchTerm}">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+<!-- User Account Dropdown -->
+<ul class="navbar-nav ml-auto">
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+User Account
+</a>
+<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+<a class="dropdown-item" href="/your-account">Your Account</a>
+<a class="dropdown-item" href="/orders">Your orders</a>
+
+<form id="logoutForm" th:action="@{/logout}" method="post">
+<a class="dropdown-item" href="javascript:{}" onclick="document.getElementById('logoutForm').submit(); return false;">Logout</a>
+</form>
+</div>
+</li>
+</ul>
+</div>
+</nav>
+
+</header>
+
+
+
+<!-- Delivery Address Alert -->
+<div class="modal fade" id="deliveryAddressModal" tabindex="-1" role="dialog" aria-labelledby="deliveryAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deliveryAddressModalLabel">Delivery Address</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Show current addresses and add new address form -->
+                <h6><small>Select adelivery location</small></h6>
+<!-- Loop over addresses and display them -->
+<div class="container">
+<div class="card-deck">
+<div th:each="address : ${addresses}" class="card">
+<div class="card-body">
+<small class="card-title" th:text="${address.fullName}"></small>
+<small class="card-text" th:text="${address.phone}"></small>
+<small class="card-text" th:text="${address.addressLine1}"></small>
+<small class="card-text" th:text="${address.addressLine2}"></small>
+<small class="card-text" th:text="${address.city}"></small>
+<small class="card-text" th:text="${address.state}"></small>
+<small class="card-text" th:text="${address.pincode}"></small>
+<br>
+<a th:href="${address.uuid}"><small>Make Default</small></a>
+</div>
+</div>
+</div>
+</div>
+<hr>
+<h6>Add New Address:</h6>
+<form th:action="@{/address}" method="get" id="address">
+<button type="submit" class="btn btn-primary">Add Address</button>
+</form>
+</div>
+</div>
+</div>
+
+</div>
+
+
+ <header class="shaded-header">
+        <h1>Cart</h1>
+     
+    </header>
+
+
+<div class="container mt-4">
+    <div class="row">
+    <div class="col-lg-8">
+    <!-- Display cart items if the cart is not empty -->
+    <div th:if="${listCart.size() > 0}">
+        <!-- Loop through the cart items -->
+        <div class="sc-list-item-content" th:each="cartItem : ${listCart}">
+                <div class="row align-items-center">
+                    <div class="col-3">
+                        <a class="sc-product-link" target="_blank" th:href="@{'/product/' + ${cartItem.product.uuid}}">
+                            <img th:src="@{'/images/products/' + ${cartItem.product.mainImage.fileName}}" alt="Product Image" width="180" height="180" class="sc-product-image">
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <a class="sc-product-link" target="_blank" th:href="@{'/product/' + ${cartItem.product.uuid}}">
+                                    <span class="h5 mb-0 fw-bold sc-product-title" th:text="${cartItem.product.name}" style="display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-overflow: ellipsis;"></span>
+                                </a>
+                            </li>
+                            <li class="mb-2">
+                                <span class="h6 mb-0 text-success">In stock</span>
+                            </li>
+                            <li class="mb-2">
+                                <span class="h6 mb-0 sc-item-price">₹<span th:text="${cartItem.product.price}"></span></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+               <div class="row mt-3">
+    <div class="col-9">
+        <div class="d-flex align-items-center">
+        <div class="me-3">
+                Quantity:
+            </div>
+            <div class="me-3">
+                <select class="form-control quantity-select" th:value="${cartItem.quantity}" th:attr="data-cartitemid=${cartItem.uuid}">
+                    <!-- Generate options for quantity selection -->
+                    <option th:each="quantity : ${#numbers.sequence(1, 12)}"
+                            th:value="${quantity}" th:text="${quantity}"
+                            th:selected="${quantity == cartItem.quantity}"></option>
+                </select>
+            </div>
+            <div class="me-3">
+                <button class="btn btn-link text-danger sc-action-button delete-cart-item"
+                        th:attr="data-cartitemid=${cartItem.uuid}">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+            </div>
+    </div>
+    <!-- Display message if the cart is empty -->
+    <div th:unless="${listCart.size() > 0}">
+        <p class="text-danger">Your cart is empty.</p>
+    </div>
+</div>
+    
+       
+       <div class="col-lg-4">
+    <div class="sc-list-item-content">
+        <h5 class="mb-3">Cart Summary</h5>
+        <ul class="list-unstyled">
+            <li>Total Items: <span th:text="${totalItems}"></span></li>
+            <li>Total Price: ₹<span th:text="${totalPrice}"></span></li>
+        </ul>
+        <!-- Conditional rendering of the Proceed to Buy button -->
+        <form th:if="${totalItems > 0}" th:action="@{/buy}">
+            <button class="proceed-to-buy-button">Proceed to Buy</button>
+        </form>
+        <p th:unless="${totalItems > 0}" class="text-danger">Your cart is empty.</p>
+    </div>
+    <div class="sc-list-item-content mt-4">
+        <h5 class="mb-3">Similar Products</h5>
+        <!-- Add your similar products here -->
+    </div>
+</div>
+
+    </div>
+</div>
+<div class="modal fade" id="quantityErrorModal" tabindex="-1" role="dialog" aria-labelledby="quantityErrorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="quantityErrorModalLabel">Quantity Not Available</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                The required quantity is not available in stock.
+            </div>
+            <div class="modal-footer">
+                <a type="button" href="/cart" class="btn btn-secondary" data-dismiss="modal">Close</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="shaded-footer">
+    <p>&copy; 2023 Basketo. All rights reserved.</p>
+</footer>
+
+
+<!-- JavaScript dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script>
+    // Get the selected category from the query parameter
+    var urlParams = new URLSearchParams(window.location.search);
+    var selectedCategory = urlParams.get('category');
+
+    // Set the selected category in the dropdown
+    document.getElementById('categoryDropdown').value = selectedCategory;
+</script>
+<script>
+    function showDeliveryAddress() {
+        $('#deliveryAddressModal').modal('show');
+    }
+</script>
+<script>
+    function changePage(pageNumber) {
+        var category = document.getElementById('categoryDropdown').value;
+        var sortField = "name";
+        var sortDir = encodeURIComponent("${sortDir}");
+        var searchTerm = encodeURIComponent(document.getElementById('search').value);
+
+        var url = '/page/' + pageNumber + '?category=' + category + '&sortField=' + sortField + '&sortDir=' + sortDir + '&searchTerm=' + searchTerm;
+        window.location.href = url;
+    }
+</script>
+
+
+
+<script type="text/javascript">
+    // Function to update quantity using AJAX
+   function updateQuantity(cartItemId, newQuantity) {
+    // Make an AJAX GET request to the controller
+    $.get("/cart/update", { cartItemId: cartItemId, quantity: newQuantity }, function(response) {
+        // Handle successful response
+        // Update the UI with the new data, like updating total price, cart summary, etc.
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        // Handle error response
+        if (jqXHR.status === 500) {
+            // Bad request, meaning the required quantity is not available
+            // Show a modal with an appropriate message
+            $('#quantityErrorModal').modal('show');
+        } else {
+            // Handle other error scenarios
+            console.error("Error updating quantity:", textStatus, errorThrown);
+        }
+    });
+}
+
+
+    // Function to delete cart item using AJAX
+    function deleteCartItem(cartItemId) {
+        // Make an AJAX GET request to the controller
+        $.get("/cart/delete", { cartItemId: cartItemId }, function(response) {
+            // Update the UI by removing the cart item from the list
+        	window.location.href = "/cart";
+        });
+    }
+
+    // Attach event listeners to the quantity dropdowns and delete buttons
+    $(document).ready(function() {
+        $(".quantity-select").change(function() {
+            var cartItemId = $(this).attr("data-cartitemid");
+            var newQuantity = $(this).val();
+            updateQuantity(cartItemId, newQuantity);
+        });
+
+        $(".delete-cart-item").click(function() {
+            var cartItemId = $(this).attr("data-cartitemid");
+            deleteCartItem(cartItemId);
+        });
+    });
+</script>
+
+
+</body>
+</html>
+

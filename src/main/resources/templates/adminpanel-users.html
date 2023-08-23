@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>AdminPanel - Users</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        .card {
+            margin: 0 auto;
+            margin-top: 50px;
+            width: 900px;
+        }
+        .btn-search, .btn-create, .btn-edit, .btn-delete, .btn-logout {
+            background-color: black;
+            color: white;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .table {
+            width: auto;
+            min-width: 800px;
+        }
+        .nav-link:hover {
+            color: #fff;
+            background-color: #007bff;
+        }
+         .pagination-container {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+        .pagination li {
+            list-style: none;
+            margin: 0 5px;
+        }
+        .pagination li a {
+            text-decoration: none;
+            color: white;
+        }
+        .pagination li.active a {
+            font-weight: bold;
+        }
+        .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/adminpanel">Admin Panel</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+            <form id="logoutForm" th:action="@{/logout}" method="post">
+    			<a href="javascript:{}" onclick="document.getElementById('logoutForm').submit();" class="nav-link">Logout</a>
+			</form>
+            </li>
+        </ul>
+    </div>
+</nav>
+    <div class="container">
+        <div class="card">
+            <div class="card-body" id="">
+                <h2 class="card-title">User Management</h2>
+                <form class="form-inline mb-3" th:action="@{/adminpanel/users/page/1}" method="get">
+                    <input type="hidden" name="sortField" th:value="${sortField}">
+                    <input type="hidden" name="sortDir" th:value="${sortDir}">
+                    <input type="text" class="form-control mr-2" id="search" name="searchTerm" placeholder="Search">
+                    <button type="submit" class="btn btn-search">Search</button>
+                </form>
+                <div class="table-container">
+                    <table class="table table-striped">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>
+                                    <a th:href="@{'/adminpanel/users/page/' + ${currentPage} + '?sortField=uuid&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">ID</a>
+                                </th>
+                                <th>
+                                    <a th:href="@{'/adminpanel/users/page/' + ${currentPage} + '?sortField=username&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">User Name</a>
+                                </th>
+                                <th>
+                                    <a th:href="@{'/adminpanel/users/page/' + ${currentPage} + '?sortField=first_name&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">First Name</a>
+                                </th>
+                                <th>
+                                    <a th:href="@{'/adminpanel/users/page/' + ${currentPage} + '?sortField=last_name&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">Last Name</a>
+                                </th>
+                                <th>
+                                    <a th:href="@{'/adminpanel/users/page/' + ${currentPage} + '?sortField=email&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">Email</a>
+                                </th>
+                                <th>
+                                    <a th:href="@{'/adminpanel/users/page/' + ${currentPage} + '?sortField=phone&sortDir=' + ${reverseSortDir} + '&searchTerm=' + ${searchTerm}}">Phone Number</a>
+                                </th>
+                                <th>Role</th>
+                                <th>Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Loop over user data and display in table rows -->
+                            <tr th:each="user : ${listUserInfo}">
+                                <td th:text="${user.uuid}"></td>
+                                <td th:text="${user.username}"></td>
+                                <td th:text="${user.firstName}"></td>
+                                <td th:text="${user.lastName}"></td>
+                                <td th:text="${user.email}"></td>
+                                <td th:text="${user.phone}"></td>
+                                <td th:text="${user.role.roleName}"></td>
+                                <td>
+    <div class="mb-3" th:if="${user.role.roleName != 'ROLE_ADMIN'}">
+        <a th:href="@{'/adminpanel/users/active/' + ${user.uuid}}" class="btn btn-success" th:if="${user.enabled}">Enabled</a>
+        <a th:href="@{'/adminpanel/users/active/' + ${user.uuid}}" class="btn btn-danger" th:if="${!user.enabled}">Disabled</a>
+    </div>
+</td>
+
+                                <td>
+                                    <a th:href="@{/adminpanel/users/edit/{id}(id=${user.uuid})}" class="btn btn-edit">Edit</a>
+                                    <div class="mb-3" th:if="${user.role.roleName != 'ROLE_ADMIN'}">
+                                    <a th:href="@{/adminpanel/users/delete/{id}(id=${user.uuid})}" class="btn btn-delete">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div th:if="${totalPages >= 1}">
+                    <div class="button-container">
+                        <div>
+                            Total users: [[${totalItems}]]
+                        </div>
+                      <div class="pagination-container">
+    <ul class="pagination">
+        <li th:if="${currentPage > 1}">
+            <a class="page-link" th:href="@{'/adminpanel/users/page/' + ${currentPage - 1} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + '&searchTerm=' + ${searchTerm} }">Prev</a>
+        </li>
+        <li th:unless="${currentPage > 1}">
+            <span class="page-link">Prev</span>
+        </li>
+        <th:block th:each="i: ${#numbers.sequence(1, totalPages)}">
+            <li th:class="${currentPage == i} ? 'active'">
+                <a class="page-link" th:if="${currentPage != i}" th:href="@{'/adminpanel/users/page/' + ${i} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + '&searchTerm=' + ${searchTerm} }">[[${i}]]</a>
+                <span class="page-link" th:unless="${currentPage != i}">[[${i}]]</span>
+            </li>
+        </th:block>
+        <li th:if="${currentPage < totalPages}">
+            <a class="page-link" th:href="@{'/adminpanel/users/page/' + ${currentPage + 1} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + '&searchTerm=' + ${searchTerm} }">Next</a>
+        </li>
+        <li th:unless="${currentPage < totalPages}">
+            <span class="page-link">Next</span>
+        </li>
+    </ul>
+</div>
+
+
+                    </div>
+                </div>
+                <div class="button-container">
+                    <a href="/adminpanel/users/create" class="btn btn-create">Create User</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <br>
+    
+<footer class="footer">
+    <div class="container">
+        <p>Admin Panel - Users &copy; 2023</p>
+    </div>
+</footer>
+    <script>
+        function handleChange(select) {
+            var userId = user.uuid;
+            var isEnabled = select.value;
+
+            window.location.href = '/adminpanel/users/' + userId + '/isenabled?enabled=' + isEnabled;
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</body>
+</html>
+                                

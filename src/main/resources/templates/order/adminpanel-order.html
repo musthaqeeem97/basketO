@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - Order</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            margin: 50px auto;
+            width: 900px;
+        }
+        .btn-create, .btn-edit, .btn-delete, .btn-logout {
+            background-color: black;
+            color: white;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+        .table {
+            width: auto;
+            min-width: 800px;
+        }
+        .pagination-container {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+        .pagination li {
+            list-style: none;
+            margin: 0 5px;
+        }
+        .pagination li a {
+            text-decoration: none;
+            color: white;
+        }
+        .pagination li.active a {
+            font-weight: bold;
+        }
+        .nav-link {
+            color: white;
+        }
+        .nav-link:hover {
+            color: #fff;
+            background-color: #343a40;
+        }
+        .navbar {
+            background-color: #343a40;
+        }
+        .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/adminpanel">Admin Panel</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+            <form id="logoutForm" th:action="@{/logout}" method="post">
+    			<a href="javascript:{}" onclick="document.getElementById('logoutForm').submit();" class="nav-link">Logout</a>
+			</form>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">Order Management</h2>
+            <form class="form-inline mb-3" th:action="@{/adminpanel/order/page/1}" method="get">
+                <input type="hidden" name="sortField" th:value="${sortField}">
+                <input type="hidden" name="sortDir" th:value="${sortDir}">
+                <input type="text" class="form-control mr-2" id="search" name="searchTerm" placeholder="Search" th:value="${searchTerm}">
+                <button type="submit" class="btn btn-search">Search</button>
+            </form>
+            <div class="table-container">
+                <table class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Sl No</th>
+                            <th>Order Item ID</th>
+                            <th>Order Placed</th>
+                            <th>Amount</th>
+                            <th>Quantity</th>
+                            <th>Status</th>
+                            <th>Product </th>    
+                            <th>Customer ID</th>
+                            <th>Order ID</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    
+                    
+                <tbody>
+             
+
+                <tr th:each="order, rowIndex: ${listOrder}">
+                    <td th:text="${currentPage}+'.'+${rowIndex.count}"></td>
+                    <td th:text="${order.uuid}"></td>
+                    <td th:text="${order.createdAt}"></td>
+                    <td th:text="${order.amount}"></td>
+                    <td th:text="${order.quantity}"></td>
+                    
+                    <td>
+                        <span th:if="${order.status.name == 'PAYMENT_PENDING'}"><i class="fas fa-exclamation-circle"></i> Payment Pending</span>
+<span th:if="${order.status.name == 'UNSHIPPED'}"><i class="fas fa-truck"></i> Unshipped</span>
+<span th:if="${order.status.name == 'SHIPPING_SOON'}"><i class="fas fa-truck-loading"></i> Shipping Soon</span>
+<span th:if="${order.status.name == 'SHIPPED'}"><i class="fas fa-shipping-fast"></i> Shipped</span>
+<span th:if="${order.status.name == 'OUT_FOR_DELIVERY'}"><i class="fas fa-truck-moving"></i> Out for Delivery</span>
+<span th:if="${order.status.name == 'DELIVERED'}"><i class="fas fa-check-circle"></i> Delivered</span>
+<span th:if="${order.status.name == 'CANCELLED'}"><i class="fas fa-times-circle"></i> Cancelled</span>
+<span th:if="${order.status.name == 'RETURNED'}"><i class="fas fa-undo"></i> Returned</span>
+<span th:if="${order.status.name == 'REFUNDED'}"><i class="fas fa-money-bill"></i> Refunded</span>
+<span th:if="${order.status.name == 'ON_HOLD'}"><i class="fas fa-pause-circle"></i> On Hold</span>
+<span th:if="${order.status.name == 'UNKNOWN'}"><i class="fas fa-question-circle"></i> Unknown</span>
+   </td>
+                    <td th:text="${order.product.name}"></td>
+                    <td th:text="${order.userInfo.uuid}"></td>
+                    <td th:text="${order.orderHistory.uuid}"></td>
+                    <td>
+                 
+                    <div th:unless="${order.status.name == 'CANCELLED'||order.status.name == 'REFUNDED'||order.status.name == 'RETURNED'}">
+                        <a th:href="@{/adminpanel/order/edit/{id}(id=${order.uuid})}" class="btn btn-primary btn-sm">Update status</a></div>
+                       <div th:if="${order.requestCancel && (order.status.name != 'CANCELLED'&& order.status.name != 'DELIVERED' &&order.status.name != 'RETURNED'  && order.status.name != 'RETURN_INITIATED')}">
+    <a th:href="@{/adminpanel/order/edit/{id}(id=${order.uuid})}" class="btn btn-danger btn-sm">Accept cancellation</a>
+</div>
+
+                        <div th:if="${order.status.name != 'RETURN_INITIATED' && order.status.name != 'RETURNED'} ">
+                        <div th:if="${order.requestReturn}">
+                        <a th:href="@{/adminpanel/order/edit/{id}(id=${order.uuid})}" class="btn btn-danger btn-sm">Accept return</a>
+                        </div>
+                        </div>
+                </td>
+                </tr>
+                </tbody>
+                    
+                </table>
+            </div>
+            <
+            <div th:if="${totalPages >= 1}" class="pagination-container">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{'/adminpanel/order/page/' + ${currentPage - 1} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + '&searchTerm=' + ${searchTerm}}" tabindex="-1">Prev</a>
+                    </li>
+                    <li class="page-item" th:each="i: ${#numbers.sequence(1, totalPages)}" th:classappend="${currentPage == i} ? 'active'">
+                        <a class="page-link" th:href="@{'/adminpanel/order/page/' + ${i} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + '&searchTerm=' + ${searchTerm}}"><span th:text="${i}"></span></a>
+                    </li>
+                    <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                        <a class="page-link" th:href="@{'/adminpanel/order/page/' + ${currentPage + 1} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + '&searchTerm=' + ${searchTerm}}">Next</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<footer class="footer">
+    <div class="container">
+        <p>Admin Panel - Coupons &copy; 2023</p>
+    </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+</body>
+</html>

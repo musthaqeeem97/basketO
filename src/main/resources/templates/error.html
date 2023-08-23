@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Error</title>
+    <style>
+        /* Add your custom styles for the error page */
+        .error-container {
+            text-align: center;
+            margin-top: 100px;
+        }
+        .error-heading {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .error-message {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="error-container">
+        <h2 class="error-heading">Oops! Something went wrong.</h2>
+        <p th:if="${error}" class="error-message" th:text="${error}"></p>
+        <p class="error-message">Please try again later.</p>
+    </div>
+</body>
+</html>

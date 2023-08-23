@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - Update Order</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style>
+        /* Add your custom styles here */
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- Add your navbar content here -->
+</nav>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">Update Order</h2>
+            <form th:action="@{/adminpanel/order/update}" th:object="${order}" method="post">
+               
+                  <div class="form-group">
+                    <label for="orderId">order Item ID:</label>
+                    <input type="text" class="form-control"  name="uuid" th:value="${order.uuid}" >
+                </div>
+                <div class="form-group">
+                    <label for="customerID">Customer ID:</label>
+                    <input type="text" class="form-control" id="customerID" name="userInfo" th:value="${order.userInfo.uuid}" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="product">Product:</label>
+                    <input type="text" class="form-control" id="product" name="product" th:value="${order.product.name}" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" class="form-control" id="quantity" name="quantity" th:value="${order.quantity}"  disabled>
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount:</label>
+                    <input type="number" class="form-control" id="amount" name="amount" th:value="${order.amount}"  disabled>
+                </div>
+                <div class="form-group">
+                    <label for="status">Status:</label>
+                    <select class="form-control" id="status" name="status">
+                        <option th:each="status : ${T(com.example.basketo.backend.order.enums.OrderStatus).values()}"
+                                th:value="${status.name()}"
+                                th:text="${status.name()}"
+                                th:selected="${order.status.name() == status.name()}"></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Order</button>
+            </form>
+        </div>
+    </div>
+</div>
+<footer class="footer">
+    <!-- Add your footer content here -->
+</footer>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>
