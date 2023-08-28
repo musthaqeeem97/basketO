@@ -41,7 +41,7 @@
                 <div class="form-group">
                     <label for="status">Status:</label>
                     <select class="form-control" id="status" name="status">
-                        <option th:each="status : ${T(com.example.basketo.backend.order.enums.OrderStatus).values()}"
+                        <option th:each="status : ${T(com.example.basketo.shopadmin.order.enums.OrderStatus).values()}"
                                 th:value="${status.name()}"
                                 th:text="${status.name()}"
                                 th:selected="${order.status.name() == status.name()}"></option>
